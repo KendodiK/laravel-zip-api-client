@@ -16,9 +16,9 @@ class CityController extends Controller
             return redirect()->route('products.index')->with('error', "Hiba történt: $message");
         }
 
-        $cities = $this->$response->json();
+        $cities = $response->json();
 
-        return view('city.index', compact($cities));
+        return view('city.index', compact('cities'));
     }
 
     public function show($id){

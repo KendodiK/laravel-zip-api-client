@@ -27,5 +27,9 @@ Route::put('/cities/{city}', [CityController::class, 'update'] )->name('cities.u
 Route::delete('/cities/{city}', [CityController::class, 'destroy'] )->name('cities.destroy');
 
 Route::get('/counties', [CountyController::class, 'index'] )->name('counties.index');
+Route::get('/counties/{county}', [CountyController::class, 'show'] )->name('counties.show');
+Route::post('/counties', [CountyController::class, 'store'] )->name('counties.store');
+Route::put('/counties/{county}', [CountyController::class, 'update'] )->name('counties.update');
+Route::delete('/counties/{county}', [CountyController::class, 'destroy'] )->name('counties.destroy');
 
 require __DIR__.'/auth.php';
