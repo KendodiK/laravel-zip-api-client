@@ -20,7 +20,9 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/cities', [CityController::class, 'index'] )->name('cities.index');
+Route::get('/cities', [CityController::class, 'showBasePage'] )->name('cities.index');
+Route::get('/cities/getAbc', [CityController::class, 'getAbc'] )->name('cities.getAbc');
+Route::get('/cities/{char}', [CityController::class, 'showByCharAndCounty'])->name('cities.showByCharAndCounty');
 Route::get('/cities/{city}', [CityController::class, 'show'] )->name('cities.show');
 Route::post('/cities', [CityController::class, 'store'] )->name('cities.store');
 Route::put('/cities/{city}', [CityController::class, 'update'] )->name('cities.update');
