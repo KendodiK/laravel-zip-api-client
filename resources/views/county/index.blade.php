@@ -10,6 +10,7 @@
         </tr>
         <tr>
             <form action="{{route('counties.store')}}" method="post">
+                @csrf
                 <th>
                     <input type="text" name="name">
                 </th>
@@ -31,6 +32,7 @@
                 <td>
                     <form action="{{route('counties.destroy', $county['id'])}}" method="post">
                         @method('DELETE')
+                        @csrf
                         <input type="submit" value="törlés">
                     </form>
                 </td>
