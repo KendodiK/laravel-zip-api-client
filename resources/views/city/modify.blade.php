@@ -6,7 +6,7 @@
         <th></th>
     </tr>
     <tr>
-        <form action="{{ route('cities.store') }}" method="post">
+        <form action="{{ route('cities.update') }}" method="post">
             @method('POST')
             @csrf
             <td>
