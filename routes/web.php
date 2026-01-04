@@ -25,6 +25,7 @@ Route::get('/cities/getAbc', [CityController::class, 'getAbc'] )->name('cities.g
 Route::get('/cities/{char}', [CityController::class, 'showByCharAndCounty'])->name('cities.showByCharAndCounty');
 Route::get('/cities/{city}', [CityController::class, 'show'] )->name('cities.show');
 Route::post('/cities', [CityController::class, 'store'] )->name('cities.store');
+Route::get('/cities/{city}/edit', [CityController::class, 'edit'] )->name('cities.edit');
 Route::put('/cities/{city}', [CityController::class, 'update'] )->name('cities.update');
 Route::delete('/cities/{city}', [CityController::class, 'destroy'] )->name('cities.destroy');
 

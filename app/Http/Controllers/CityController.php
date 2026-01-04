@@ -68,7 +68,7 @@ class CityController extends Controller
             $response = Http::api()->get("/city/$id");
 
             if ($response->failed()) {
-                $message = $response->json('message') ?? 'A megye nem található vagy hiba történt.';
+                $message = $response->json('message') ?? 'A város nem található vagy hiba történt.';
                 return redirect()
                     ->route('cities.index')
                     ->with('error', "Hiba: $message");
@@ -78,7 +78,7 @@ class CityController extends Controller
             if (!$city) {
                 return redirect()
                     ->route('cities.index')
-                    ->with('error', "A megye adatai nem érhetők el.");
+                    ->with('error', "A város adatai nem érhetők el.");
             }
 
             return view('city.modify', ['entity' => $city]);
@@ -86,48 +86,139 @@ class CityController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('cities.index')
-                ->with('error', "Nem sikerült betölteni a megye adatait: " . $e->getMessage());
+                ->with('error', "Nem sikerült betölteni a város adatait: " . $e->getMessage());
         }
     }
 
     public function store(Request $request){
         $request->validate([
-           'name' => 'required|string',
-           'countyId' => 'required|integer|>0',
-
+            'name' => 'required|string',
+            'countyId' => 'required|integer|min:1',
+            'postalCode' => 'numeric|required|min:1000|max:9999',
         ]);
         $name = $request->get('name');
+        $countyId = $request->get('countyId');
+        $postalCode = $request->get('postalCode');
 
         try {
             $response = Http::api()
                 ->withToken($this->token)
-                ->post('/counties', ['name' => $name]);
+                ->post('/city', ['name' => $name, 'countyId' => $countyId, 'postalCode' => $postalCode]);
 
             if ($response->failed()) {
-                // Ha az API válaszolt, de hibás státuszkóddal (pl. 422, 403, 500)
-                $message = $response->json('message') ?? 'Nem sikerült létrehozni a megyét.';
+                $message = $response->json('message') ?? 'Nem sikerült létrehozni a város.';
                 return redirect()
-                    ->route('counties.index')
+                    ->route('cities.index')
                     ->with('error', "Hiba: $message");
             }
 
             return redirect()
-                ->route('counties.index')
-                ->with('success', "$name megye sikeresen létrehozva!");
+                ->route('cities.index')
+                ->with('success', "$name város sikeresen létrehozva!");
 
         } catch (\Exception $e) {
-            // Hálózati vagy JSON dekódolási hiba
             return redirect()
-                ->route('counties.index')
+                ->route('cities.index')
                 ->with('error', "Nem sikerült kommunikálni az API-val: " . $e->getMessage());
         }
     }
 
-    public function update(Request $request, $id){
+    public function edit($id)
+    {
+        try {
+            $response = Http::api()->get("/cities/$id");
 
+            if ($response->failed()) {
+                $message = $response->json('message') ?? 'A város nem található vagy hiba történt.';
+                return redirect()
+                    ->route('cities.index')
+                    ->with('error', "Hiba: $message");
+            }
+
+            $city = $this->getCounty($response);
+
+            if (!$city) {
+                return redirect()
+                    ->route('cities.index')
+                    ->with('error', "A város adatai nem érhetők el.");
+            }
+
+            return view('city.modify', ['entity' => $city]);
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('city.index')
+                ->with('error', "Nem sikerült betölteni a város szerkesztő nézetét: " . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id){
+        $request->validate([
+            'name' => 'required|string',
+            'countyId' => 'required|integer|min:1',
+            'postalCode' => 'numeric|required|min:1000|max:9999',
+        ]);
+        $name = $request->get('name');
+        $countyId = $request->get('countyId');
+        $postalCode = $request->get('postalCode');
+
+        try {
+            $response = Http::api()
+                ->withToken($this->token)
+                ->put("/city/$id", ['name' => $name, 'countyId' => $countyId, 'postalCode' => $postalCode]);
+
+            if ($response->successful()) {
+                return redirect()
+                    ->route('cities.index')
+                    ->with('success', "$name Város sikeresen frissítve!");
+            }
+
+            $errorMessage = $response->json('message') ?? 'Ismeretlen hiba történt.';
+            return redirect()
+                ->route('cities.index')
+                ->with('error', "Hiba történt: $errorMessage");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('cities.index')
+                ->with('error', "Nem sikerült frissíteni: " . $e->getMessage());
+        }
     }
 
     public function destroy($id){
+        try {
+            $response = Http::api()
+                ->withToken($this->token)
+                ->delete("/city/$id", ['id' => $id]);
 
+            if ($response->failed()) {
+                $message = $response->json('message') ?? 'Nem sikerült törölni a város.';
+                return redirect()
+                    ->route('cities.index')
+                    ->with('error', "Hiba: $message");
+            }
+
+            return redirect()
+                ->route('cities.index')
+                ->with('success', "Város sikeresen törölve!");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('cities.index')
+                ->with('error', "Nem sikerült kommunikálni az API-val: " . $e->getMessage());
+        }
+    }
+
+    private function getCounty($response)
+    {
+        $responseBody = json_decode($response->body(), false);
+        $data = $responseBody->data ?? null;
+        $result = [];
+
+        if (!empty($data)) {
+            $result = $data->city ?? [];
+        }
+
+        return $result;
     }
 }

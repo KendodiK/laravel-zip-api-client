@@ -36,7 +36,7 @@
                     </td>
                     <td>
                         {{ $selectedCounty = Session::get('selectedCounty') }}
-                        <input type="hidden" value="{{ $selectedCounty }}">
+                        <input type="hidden" value="{{ $selectedCounty }}" name="countyId">
                     </td>
                     <td>
                         <input type="submit" value="hozzáadás">
