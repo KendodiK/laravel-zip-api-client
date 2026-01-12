@@ -35,20 +35,20 @@ class AuthenticatedSessionController extends Controller
         if ($response->successful()) {
             // elmentjük a bejelentkezési adatokat a session-be.
             $responseBody = json_decode($response->body());
-            if (empty($responseBody->data)) {
+            if (empty($responseBody->user)) {
                 return back()->withErrors([
-                    'message' => $responseBody->message ?? 'ismeretlen hiba',
+                    'message' => 'ismeretlen hiba',
                 ]);
             }
             // az, hogy a token és a többi milyen formában van a response-ban
             // az API programozójától függ, pl: "data" tömbön belül
             session([
-                'api_token' => $responseBody->data->token,
-                'user_name' => $responseBody->data->name,
-                'user_email' => $responseBody->data->email,
+                'api_token' => $responseBody->user->token,
+                'user_name' => $responseBody->user->name,
+                'user_email' => $responseBody->user->email,
             ]);
 
-            return redirect()->intended('/');
+            return redirect()->route('welcome');
         }
 
         return back()->withErrors([

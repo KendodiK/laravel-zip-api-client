@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -31,6 +31,8 @@ Route::delete('/cities/{city}', [CityController::class, 'destroy'] )->name('citi
 
 Route::get('/counties', [CountyController::class, 'index'] )->name('counties.index');
 Route::get('/counties/{county}', [CountyController::class, 'show'] )->name('counties.show');
+Route::get('/counties/export/pdf', [CountyController::class, 'exportPdf'])->name('counties.export.pdf');
+Route::get('/counties/export/csv', [CountyController::class, 'exportCsv'])->name('counties.export.csv');
 Route::post('/counties', [CountyController::class, 'store'] )->name('counties.store');
 Route::put('/counties/{county}', [CountyController::class, 'update'] )->name('counties.update');
 Route::delete('/counties/{county}', [CountyController::class, 'destroy'] )->name('counties.destroy');

@@ -13,7 +13,10 @@ class CityController extends Controller
     public function showBasePage()
     {
         if (!Session::has('counties')) {
-            $counties = CountyController::getAllCounties();
+            $response = Http::api()->get('county');
+
+            $counties = CountyController::getCounties($response);
+
             Session::put('counties', $counties);
         }
 
@@ -73,7 +76,7 @@ class CityController extends Controller
                     ->route('cities.index')
                     ->with('error', "Hiba: $message");
             }
-            $city = $this->getCounty($response);
+            $city = $this->getCity($response);
 
             if (!$city) {
                 return redirect()
@@ -103,7 +106,7 @@ class CityController extends Controller
         try {
             $response = Http::api()
                 ->withToken($this->token)
-                ->post('/city', ['name' => $name, 'countyId' => $countyId, 'postalCode' => $postalCode]);
+                ->post('/city', ['name' => $name, 'county_id' => $countyId, 'postal_code' => $postalCode]);
 
             if ($response->failed()) {
                 $message = $response->json('message') ?? 'Nem sikerült létrehozni a város.';
@@ -126,20 +129,20 @@ class CityController extends Controller
     public function edit($id)
     {
         try {
-            $response = Http::api()->get("/cities/$id");
+            $response = Http::api()->get("/city/$id");
 
             if ($response->failed()) {
                 $message = $response->json('message') ?? 'A város nem található vagy hiba történt.';
                 return redirect()
-                    ->route('cities.index')
+                    ->back()
                     ->with('error', "Hiba: $message");
             }
 
-            $city = $this->getCounty($response);
+            $city = json_decode($response->body(), false);
 
             if (!$city) {
                 return redirect()
-                    ->route('cities.index')
+                    ->back()
                     ->with('error', "A város adatai nem érhetők el.");
             }
 
@@ -147,17 +150,17 @@ class CityController extends Controller
 
         } catch (\Exception $e) {
             return redirect()
-                ->route('city.index')
+                ->back()
                 ->with('error', "Nem sikerült betölteni a város szerkesztő nézetét: " . $e->getMessage());
         }
     }
 
     public function update(Request $request, $id){
-        $request->validate([
-            'name' => 'required|string',
-            'countyId' => 'required|integer|min:1',
-            'postalCode' => 'numeric|required|min:1000|max:9999',
-        ]);
+//        $request->validate([
+//            'name' => 'required|string',
+//            'countyId' => 'required|numeric:|min:1',
+//            'postalCode' => 'required|numeric|min:1000|max:9999',
+//        ]);
         $name = $request->get('name');
         $countyId = $request->get('countyId');
         $postalCode = $request->get('postalCode');
@@ -165,22 +168,22 @@ class CityController extends Controller
         try {
             $response = Http::api()
                 ->withToken($this->token)
-                ->put("/city/$id", ['name' => $name, 'countyId' => $countyId, 'postalCode' => $postalCode]);
+                ->put("/city/$id", ['name' => $name, 'county_id' => $countyId, 'postal_code' => $postalCode]);
 
             if ($response->successful()) {
                 return redirect()
-                    ->route('cities.index')
+                    ->back()
                     ->with('success', "$name Város sikeresen frissítve!");
             }
 
             $errorMessage = $response->json('message') ?? 'Ismeretlen hiba történt.';
             return redirect()
-                ->route('cities.index')
+                ->back()
                 ->with('error', "Hiba történt: $errorMessage");
 
         } catch (\Exception $e) {
             return redirect()
-                ->route('cities.index')
+                ->back()
                 ->with('error', "Nem sikerült frissíteni: " . $e->getMessage());
         }
     }
@@ -209,14 +212,14 @@ class CityController extends Controller
         }
     }
 
-    private function getCounty($response)
+    private function getCity($response)
     {
         $responseBody = json_decode($response->body(), false);
-        $data = $responseBody->data ?? null;
+        $data = $responseBody ?? null;
         $result = [];
 
         if (!empty($data)) {
-            $result = $data->city ?? [];
+            $result = $data->name ?? [];
         }
 
         return $result;

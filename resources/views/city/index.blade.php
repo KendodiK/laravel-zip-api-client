@@ -6,10 +6,10 @@
         <select name="county">
             @if(Session::has('counties'))
                 @foreach(Session::get('counties') as $county)
-                    @if(Session::get('selectedCounty') == $county['id'])
-                        <option value="{{$county['id']}}" selected>{{$county['name']}} ({{ $county['id'] }})</option>
+                    @if(Session::get('selectedCounty') == $county->id)
+                        <option value="{{$county->id}}" selected>{{$county->name}} ({{ $county->id }})</option>
                     @else
-                        <option value="{{$county['id']}}">{{$county['name']}} ({{ $county['id'] }})</option>
+                        <option value="{{$county->id}}">{{$county->name}} ({{ $county->id }})</option>
                     @endif
                 @endforeach
             @endif
@@ -66,7 +66,7 @@
                     <td>{{$citi['name']}}</td>
                     <td>{{$citi['postalCode']}}</td>
                     <td>
-                        <form action="{{route('cities.update', $citi['id'])}}" method="post">
+                        <form action="{{route('cities.edit', $citi['id'])}}" method="get">
                             <input type="submit" value="módosítás">
                         </form>
                     </td>
@@ -74,6 +74,7 @@
                         <form action="{{route('cities.destroy', $citi['id'])}}" method="post">
                             <input type="submit" value="törlés">
                             @csrf
+                            @method('DELETE')
                         </form>
                     </td>
                 </tr>

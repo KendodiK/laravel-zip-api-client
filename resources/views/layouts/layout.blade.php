@@ -11,10 +11,27 @@
         <ul>
             <li><a href="{{ route('cities.index') }}">Városok</a></li>
             <li><a href="{{ route('counties.index') }}">Megyék</a></li>
-            <li><a href="{{ route('dashboard') }}">Bejelentkezés</a></li>
+            <li><a href="{{ route('dashboard') }}">Bejelentkezés</a>
+                <a
+                    style="color:
+                @if(Session::has('user_name'))
+                    green
+                @else
+                    red
+                @endif
+                "
+                >*</a>
+            </li>
         </ul>
     </nav>
 </header>
+    @if (session('success'))
+        <div class="success">{{ session('success') }}</div>
+    @endif
+
+    @if (session('error'))
+        <div class="error">{{ session('error') }}</div>
+    @endif
     @yield('content')
 </body>
 </html>

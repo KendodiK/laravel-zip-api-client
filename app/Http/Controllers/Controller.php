@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Session;
+
 abstract class Controller
 {
-    protected $token;
+    protected string $token;
 
     function __construct()
     {
-        $this->token = session('api_token');
+        $this->token = Session::get('api_token', '');
     }
 
     function isAuthenticated()
